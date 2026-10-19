@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SNCF : des capteurs intelligents sur les rails pour révolutionner la maintenance prédictive | L'Écho Ferroviaire</title>
+  <meta name="description" content="Enquête exclusive : comment SNCF Réseau déploie 15 000 balises IoT et l'intelligence artificielle pour surveiller 30 000 km de voies en temps réel et anticiper canicules et déraillements." />
+  <meta property="og:title" content="SNCF : des capteurs intelligents sur les rails pour révolutionner la maintenance prédictive" />
+  <meta property="og:description" content="Enquête exclusive : comment SNCF Réseau déploie l'IoT et l'IA pour surveiller 30 000 km de voies en temps réel." />
+  <meta property="og:type" content="article" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts: Editorial Lora & Modern Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['Lora', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            ink: {
+              900: '#111827',
+              800: '#1f2937',
+              700: '#374151',
+              600: '#4b5563',
+            },
+            rail: {
+              red: '#C5221F',
+              darkred: '#9B1C1A',
+              navy: '#0C2340',
+              blue: '#1E3A8A',
+              steel: '#475569',
+              ballast: '#64748B',
+              amber: '#D97706',
+              emerald: '#059669',
+            },
+            paper: '#FCFBF9',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Editorial Drop Cap */
+    .article-lead::first-letter {
+      font-size: 4.25rem;
+      line-height: 0.85;
+      float: left;
+      margin-right: 0.75rem;
+      margin-top: 0.25rem;
+      font-family: Lora, Georgia, serif;
+      font-weight: 700;
+      color: #0C2340;
+    }
+    .dark .article-lead::first-letter {
+      color: #F3F4F6;
+    }
+
+    /* Print styles */
+    @media print {
+      header, .interactive-module, .no-print, footer, #reading-progress-bar {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+    }
+
+    /* Smooth pulse glow for live sensor */
+    @keyframes sensor-wave {
+      0%, 100% { opacity: 0.4; transform: scaleY(0.95); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+    .animate-sensor-pulse {
+      animation: sensor-wave 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-paper text-ink-900 font-sans antialiased selection:bg-red-100 selection:text-red-900 transition-colors duration-200">
+
+  <!-- Barre de progression de lecture -->
+  <div id="reading-progress-bar" class="fixed top-0 left-0 w-0 h-1 bg-gradient-to-r from-rail-red via-red-600 to-rail-navy z-50 transition-all duration-100"></div>
+
+  <!-- Notification Toast (Lien copié / Actions) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-3 bg-ink-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-stone-700">
+    <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <i data-lucide="check" class="w-4 h-4"></i>
+    </div>
+    <span id="toast-text" class="text-sm font-medium">Lien copié dans le presse-papier !</span>
+  </div>
+
+  <!-- BANDEAU SUPÉRIEUR ÉDITORIAL (Top Bar & Date) -->
+  <aside class="no-print border-b border-stone-200 bg-stone-100/70 text-xs text-stone-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span id="current-date-badge" class="font-medium text-stone-700">Lundi 19 octobre 2026</span>
+        <span aria-hidden="true" class="text-stone-300">|</span>
+        <span class="text-stone-500">Édition Spéciale France & Mobilités</span>
+        <span aria-hidden="true" class="text-stone-300 hidden sm:inline">|</span>
+        <span class="hidden sm:inline-flex items-center gap-1 text-emerald-700 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          Surveillance Réseau : 30 240 km opérationnels
+        </span>
+      </div>
+
+      <!-- Contrôles d'accessibilité & lecture -->
+      <div class="flex items-center gap-4 text-xs font-medium">
+        <button id="btn-font-toggle" class="hover:text-ink-900 transition-colors flex items-center gap-1" title="Ajuster la taille du texte" aria-label="Ajuster la taille de police">
+          <span class="text-[11px] font-bold">A-</span> / <span class="text-sm font-bold">A+</span>
+        </button>
+        <span aria-hidden="true" class="text-stone-300">|</span>
+        <button id="btn-print" class="hover:text-ink-900 transition-colors flex items-center gap-1" title="Version imprimable" aria-label="Imprimer cet article">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Imprimer</span>
+        </button>
+        <span aria-hidden="true" class="text-stone-300">|</span>
+        <a href="#dashboard-sensor" class="text-rail-red font-semibold hover:underline flex items-center gap-1">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+          <span>Direct Capteurs</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- EN-TÊTE PRINCIPAL (MASTHEAD STYLE LE MONDE / LES ÉCHOS) -->
+  <header class="no-print border-b border-stone-200 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Logo et Titre du Journal -->
+      <div class="pt-6 pb-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-stone-100">
+        <div class="text-center md:text-left">
+          <a href="#" class="inline-block group">
+            <span class="font-serif text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-ink-900 uppercase">
+              L'Écho Ferroviaire
+            </span>
+            <span class="block text-[11px] uppercase tracking-widest text-stone-500 font-sans mt-0.5 group-hover:text-stone-700 transition-colors">
+              Le quotidien d'investigation des mobilités, de l'infrastructure et de l'ingénierie
+            </span>
+          </a>
+        </div>
+
+        <!-- Zone d'action & Abonnement -->
+        <div class="flex items-center gap-3">
+          <div class="hidden lg:block text-right pr-3 border-r border-stone-200">
+            <div class="text-xs font-semibold text-stone-900">Dossier N° 412</div>
+            <div class="text-[11px] text-stone-500">Transition Technologique & Climat</div>
+          </div>
+          <button id="btn-subscribe" class="bg-rail-navy hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap shadow-sm">
+            S'abonner · 1€ / mois
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation thématique épurée -->
+      <nav class="flex items-center justify-between overflow-x-auto py-3 text-sm font-medium text-stone-700 scrollbar-none" aria-label="Rubriques">
+        <div class="flex items-center space-x-6 shrink-0">
+          <a href="#" class="text-ink-900 font-bold border-b-2 border-rail-red pb-1">À la Une</a>
+          <a href="#partie-iot" class="hover:text-rail-red transition-colors whitespace-nowrap">Capteurs IoT</a>
+          <a href="#partie-climat" class="hover:text-rail-red transition-colors whitespace-nowrap">Canicules & Voies</a>
+          <a href="#partie-ia" class="hover:text-rail-red transition-colors whitespace-nowrap">IA & Prédictif</a>
+          <a href="#dashboard-sensor" class="hover:text-rail-red transition-colors whitespace-nowrap text-rail-blue font-semibold">Télémétrie en Direct</a>
+          <a href="#partage-mobile" class="hover:text-rail-red transition-colors whitespace-nowrap">Mobile & QR</a>
+        </div>
+        <div class="shrink-0 pl-4 hidden md:flex items-center gap-2 text-stone-400">
+          <i data-lucide="search" class="w-4 h-4 cursor-pointer hover:text-stone-700"></i>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENU PRINCIPAL DE L'ARTICLE -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-20">
+
+    <!-- SUR-TITRE & MÉTADONNÉES ÉDITORIALES (ZERO-PILL DISCIPLINE) -->
+    <div class="mb-4">
+      <div class="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider font-semibold text-rail-red mb-3">
+        <span>Enquête Grand Angle</span>
+        <span aria-hidden="true" class="text-stone-300">·</span>
+        <span class="text-stone-600">Infrastructures Ferroviaires</span>
+        <span aria-hidden="true" class="text-stone-300">·</span>
+        <span class="text-stone-500 font-normal">SNCF Réseau</span>
+      </div>
+
+      <!-- TITRE DE L'ARTICLE -->
+      <h1 class="font-serif text-3xl sm:text-4xl md:text-[2.75rem] leading-[1.18] font-bold text-ink-900 tracking-tight mb-5" style="text-wrap: balance;">
+        SNCF : des capteurs intelligents sur les rails pour révolutionner la maintenance prédictive
+      </h1>
+
+      <!-- CHAPEAU INTRODUCTIF -->
+      <p class="font-serif text-lg sm:text-xl leading-relaxed text-stone-700 italic border-b border-stone-200 pb-6 mb-6">
+        Face à l’intensification des canicules estivales et au défi colossal du vieillissement de ses 30&nbsp;000 kilomètres de lignes, SNCF Réseau déploie une flotte inédite de milliers de balises connectées et d’algorithmes prédictifs. Plongée au cœur d’une mutation technologique silencieuse qui traque le moindre millimètre de déformation avant l’incident ou le retard.
+      </p>
+
+      <!-- BLOC AUTEUR & HORODATAGE -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-stone-200 text-xs text-stone-500">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-rail-navy text-white flex items-center justify-center font-serif font-bold text-sm shrink-0">
+            RD
+          </div>
+          <div>
+            <div class="font-bold text-stone-900 text-sm">Raphaël Dupré</div>
+            <div class="text-stone-500">Grand reporter Technologies & Transports · L'Écho Ferroviaire</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:text-right">
+          <div>
+            <div>Publié le 19 octobre 2026 à 06h30</div>
+            <div class="text-stone-400">Mis à jour il y a 2 heures · 7 min de lecture</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRE DE PARTAGE RAPIDE -->
+      <div class="no-print flex items-center justify-between py-3 mb-8 border-b border-stone-100 text-stone-600 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-stone-500 mr-1 hidden sm:inline">Partager l'article :</span>
+          <button onclick="shareArticle('twitter')" class="p-2 rounded-lg hover:bg-stone-100 hover:text-ink-900 transition-colors" title="Partager sur X">
+            <i data-lucide="twitter" class="w-4 h-4"></i>
+          </button>
+          <button onclick="shareArticle('linkedin')" class="p-2 rounded-lg hover:bg-stone-100 hover:text-ink-900 transition-colors" title="Partager sur LinkedIn">
+            <i data-lucide="linkedin" class="w-4 h-4"></i>
+          </button>
+          <button onclick="shareArticle('whatsapp')" class="p-2 rounded-lg hover:bg-stone-100 hover:text-ink-900 transition-colors" title="Partager sur WhatsApp">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </button>
+          <button onclick="copyArticleUrl()" class="p-2 rounded-lg hover:bg-stone-100 hover:text-ink-900 transition-colors flex items-center gap-1.5" title="Copier le lien">
+            <i data-lucide="link-2" class="w-4 h-4"></i>
+            <span class="hidden md:inline font-medium">Copier</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="btn-audio-read" class="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg transition-colors font-medium">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-rail-red"></i>
+            <span>Écouter (6 min)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGE PRINCIPALE / FIGURE 1 -->
+    <figure class="mb-10">
+      <div class="overflow-hidden rounded-xl bg-stone-100 border border-stone-200 shadow-sm relative aspect-[4/3] sm:aspect-[16/10]">
+        <img 
+          src="/src/assets/images/rail_iot_sensor_track_1792402321084.jpg" 
+          alt="Boîtier de capteur intelligent IoT fixé au patin d'un rail de chemin de fer avec train TGV en arrière-plan"
+          class="w-full h-full object-cover"
+          loading="eager"
+          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541427468627-a89a96e5ca1d?auto=format&fit=crop&w=1200&q=80';"
+        />
+      </div>
+      <figcaption class="mt-2.5 text-xs text-stone-500 font-serif leading-relaxed flex items-baseline justify-between gap-4">
+        <span><strong>Fig. 1</strong> — Module autonome de télémesure dynamique fixé par étrier anti-vibration sur le patin du rail d’une voie à grande vitesse. Équipé d’un capteur piézoélectrique et d’une sonde thermique infra-millimétrique, il communique en réseau sans fil LoRaWAN ferroviaire.</span>
+        <span class="shrink-0 text-[11px] text-stone-400 font-sans uppercase">Photo : Écho Ferroviaire</span>
+      </figcaption>
+    </figure>
+
+    <!-- ARTICLE BODY CONTAINER -->
+    <article class="article-content font-sans text-stone-800 text-[17px] leading-[1.8] space-y-7">
+
+      <!-- PARAGRAPHE INTRODUCTIF AVEC LETTRINE -->
+      <p class="article-lead text-stone-900 font-normal">
+        Sur la Ligne à Grande Vitesse Sud-Est, à quelques kilomètres au sud de Montbard, le passage d’une rame TGV filant à 320&nbsp;km/h génère un souffle violent et une onde de choc mécanique de plusieurs tonnes. Pourtant, à quelques centimètres seulement de la roue en acier, un petit boîtier noir thermoformé, scellé au patin du rail, ne cille pas. Ce dispositif autonome de télémesure n’est ni un capteur de signalisation classique, ni une caméra de sécurité. C’est l’une des sentinelles numériques d’un plan d’investissement colossal engagé par SNCF Réseau : la transformation de la voie ferrée en un organisme vivant, connecté et bavard.
+      </p>
+
+      <p>
+        Pendant plus d’un siècle, la surveillance des rails a reposé quasi exclusivement sur le regard aiguisé des agents de maintenance arpentant le ballast à pied, complété par les tournées périodiques de rames d'auscultation comme la célèbre voiture Mauzin ou la rame Iris 320. Mais dans un contexte de réchauffement planétaire accéléré et d’exigence accrue de ponctualité par les usagers, ce modèle d’auscultation épisodique atteint ses limites physiques.
+      </p>
+
+      <!-- ENCADRÉ STATISTIQUES CLÉS -->
+      <div class="my-10 p-6 sm:p-8 bg-white rounded-2xl border border-stone-200 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-rail-red"></i>
+          <span>Chiffres clés · Le réseau ferré français à l’heure de l’IoT</span>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center sm:text-left">
+          <div class="border-b sm:border-b-0 sm:border-r border-stone-100 pb-4 sm:pb-0 sm:pr-4">
+            <div class="font-mono text-3xl sm:text-4xl font-extrabold text-ink-900 tracking-tight tabular-nums">30 000</div>
+            <div class="text-xs uppercase font-semibold text-rail-red mt-1">Kilomètres</div>
+            <p class="text-xs text-stone-500 mt-1 leading-normal">de voies commerciales sous surveillance active sur le territoire national.</p>
+          </div>
+
+          <div class="border-b sm:border-b-0 sm:border-r border-stone-100 pb-4 sm:pb-0 sm:pr-4">
+            <div class="font-mono text-3xl sm:text-4xl font-extrabold text-emerald-700 tracking-tight tabular-nums">-30 %</div>
+            <div class="text-xs uppercase font-semibold text-emerald-800 mt-1">Pannes Inopinées</div>
+            <p class="text-xs text-stone-500 mt-1 leading-normal">réduction constatée des ruptures de voie sur les corridors équipés.</p>
+          </div>
+
+          <div class="border-b sm:border-b-0 sm:border-r border-stone-100 pb-4 sm:pb-0 sm:pr-4">
+            <div class="font-mono text-3xl sm:text-4xl font-extrabold text-ink-900 tracking-tight tabular-nums">15 000</div>
+            <div class="text-xs uppercase font-semibold text-rail-navy mt-1">Balises Connectées</div>
+            <p class="text-xs text-stone-500 mt-1 leading-normal">déployées d'ici fin 2027 sur les zones critiques et aiguillages majeurs.</p>
+          </div>
+
+          <div>
+            <div class="font-mono text-3xl sm:text-4xl font-extrabold text-ink-900 tracking-tight tabular-nums">48 h</div>
+            <div class="text-xs uppercase font-semibold text-stone-700 mt-1">Anticipation Moyenne</div>
+            <p class="text-xs text-stone-500 mt-1 leading-normal">délai accordé aux brigades pour intervenir avant un arrêt d'urgence.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARTIE 1 -->
+      <section id="partie-iot" class="pt-6">
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight mb-4 flex items-baseline gap-3">
+          <span class="text-rail-red font-sans font-bold text-lg sm:text-xl">01.</span>
+          <span>L'armada IoT au millimètre près : de la ronde pédestre à la sentinelle autonome</span>
+        </h2>
+
+        <p>
+          Conçus pour résister aux pires contraintes d'écrasement, aux intempéries extrêmes et aux projections de cailloux de ballast, ces boîtiers concentrent un éventail de micro-capteurs de haute précision. Au cœur du dispositif : une jauge de déformation à fibre optique ou piézo-résistive capable de mesurer l’allongement ou la compression de la poutre métallique à l’échelle du micron, associée à un accéléromètre triaxial analysant les vibrations haute fréquence lors des passages de trains.
+        </p>
+
+        <p>
+          <em>« Longtemps, installer des capteurs nécessitait de tirer des kilomètres de câbles coûteux le long des voies et de percer l'acier, ce qui créait des zones de fragilité inacceptables »</em>, explique Laurent Vernier, ingénieur principal au Centre d'Ingénierie du Matériel de Saint-Pierre-des-Corps. <em>« La rupture technologique récente repose sur deux éléments : des fixations non invasives par pincement magnétique ou étriers calibrés, et une autonomie énergétique totale garantie par la combinaison de mini-panneaux solaires et de micro-générateurs thermoélectriques tirant parti de la différence de chaleur entre le rail et l’air ambiant. »</em>
+        </p>
+
+        <p>
+          Chaque nœud de mesure émet ses paquets de télémétrie via des protocoles radio basse consommation sécurisés (LoRaWAN et 4G/LTE-M ferroviaire). Si les données de routine ne sont acheminées que toutes les dix minutes pour préserver l'autonomie, l'algorithme embarqué sur microcontrôleur bascule instantanément en mode alerte prioritaire dès qu'une anomalie dynamique – telle qu’un méplat sur une roue de wagon fret ou un défaut de géométrie du ballast – est détectée.
+        </p>
+      </section>
+
+      <!-- CITATION MISE EN AVANT (PULL QUOTE ÉLÉGANTE) -->
+      <div class="my-10 py-6 border-y-2 border-stone-200">
+        <blockquote class="font-serif text-xl sm:text-2xl text-ink-900 italic text-center max-w-2xl mx-auto leading-relaxed">
+          « Nous ne réparons plus parce qu’une pièce a cassé ou parce qu’un calendrier théorique nous le dicte. Nous intervenons parce que l'acier lui-même nous avertit qu'il souffre. »
+        </blockquote>
+        <div class="text-center text-xs font-semibold uppercase tracking-wider text-stone-500 mt-3">
+          — Hélène Mercier, Directrice de la Maintenance Prédictive chez SNCF Réseau
+        </div>
+      </div>
+
+      <!-- PARTIE 2 -->
+      <section id="partie-climat" class="pt-6">
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight mb-4 flex items-baseline gap-3">
+          <span class="text-rail-red font-sans font-bold text-lg sm:text-xl">02.</span>
+          <span>Le défi climatique : quand la dilatation de l'acier défie le thermomètre</span>
+        </h2>
+
+        <p>
+          Si la détection de l'usure mécanique est cruciale, la météo est devenue la première menace opérationnelle pour la régularité des circulations. Sous l'effet du rayonnement direct du soleil au zénith, la température d'un rail en acier peut atteindre 20 à 25 degrés de plus que celle de l'air ambiant. Lorsqu'un thermomètre météorologique affiche 38&nbsp;°C à l'ombre en gare de Lyon, le rail dépasse fréquemment les 60&nbsp;°C.
+        </p>
+
+        <p>
+          À ce niveau de chaleur, le phénomène de dilatation thermique engendre une force de compression longitudinale démesurée, atteignant plusieurs dizaines de tonnes par file de rail. Si la voie est mal calée dans son lit de ballast ou si la contrainte interne dépasse le seuil critique, le rail peut soudainement subir un « flambement » : une torsion latérale brutale capable de faire dérailler un convoi lancé à pleine vitesse.
+        </p>
+      </section>
+
+      <!-- DEUXIÈME IMAGE / CORRIDOR TGV -->
+      <figure class="my-8">
+        <div class="overflow-hidden rounded-xl bg-stone-100 border border-stone-200 shadow-sm relative aspect-[16/9]">
+          <img 
+            src="/src/assets/images/tgv_rail_network_landscape_1792402321521.jpg" 
+            alt="Corridor de ligne à grande vitesse français avec rame TGV sous un ciel chaud ensoleillé"
+            class="w-full h-full object-cover"
+            loading="lazy"
+            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80';"
+          />
+        </div>
+        <figcaption class="mt-2.5 text-xs text-stone-500 font-serif leading-relaxed flex items-baseline justify-between gap-4">
+          <span><strong>Fig. 2</strong> — Corridor ferroviaire sur ballast traité. Durant les épisodes de canicule, les capteurs IoT comparent en temps réel la température de surface du rail et la contrainte de compression interne avec la « température de neutralisation » de l’acier.</span>
+          <span class="shrink-0 text-[11px] text-stone-400 font-sans uppercase">Photo : L'Écho Ferroviaire</span>
+        </figcaption>
+      </figure>
+
+      <p>
+        Jusqu'à récemment, la seule réponse possible pour les régulateurs était d’appliquer le principe de précaution en imposant des limitations de vitesse généralisées (parfois abaissées à 40&nbsp;km/h sur des tronçons entiers), provoquant retards en cascade et rames bondées. Grâce aux sondes thermiques et aux jauges de contrainte installées tous les 500 mètres sur les zones vulnérables, les aiguilleurs disposent désormais d'une cartographie thermique vivante :
+      </p>
+
+      <ul class="list-disc pl-6 space-y-2 text-stone-700">
+        <li><strong>Surveillance de la Température de Neutralisation :</strong> Les rails soudés sans fin (LRS) sont posés à une température de référence (habituellement 25&nbsp;°C). Le capteur surveille l'écart exact de tension pour éviter tant le flambement estival que la rupture par retrait hivernal à -15&nbsp;°C.</li>
+        <li><strong>Arrosage ciblé ou peintures thermoréflectives :</strong> Les équipes techniques ne déclenchent plus des tournées de refroidissement à l'aveugle, mais pulvérisent un revêtement blanc réfléchissant exactement sur les quelques centaines de mètres où le métal chauffe anormalement.</li>
+        <li><strong>Maintien de la vitesse commerciale :</strong> Si la température ambiante est caniculaire mais que la jauge confirme que la contrainte dans le rail reste stabilisée par le ballast, le TGV maintient sa vitesse de 320&nbsp;km/h en toute sécurité.</li>
+      </ul>
+
+      <!-- ============================================================ -->
+      <!-- MODULE INTERACTIF : DASHBOARD CAPTEUR EN DIRECT -->
+      <!-- ============================================================ -->
+      <section id="dashboard-sensor" class="interactive-module my-12 p-6 sm:p-8 bg-stone-900 text-stone-100 rounded-2xl shadow-xl border border-stone-800">
+        
+        <!-- En-tête du simulateur -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-stone-800 gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-rail-red font-mono font-semibold">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Dispositif de Télémétrie Voie · Démonstrateur Interactif</span>
+            </div>
+            <h3 class="font-serif text-xl sm:text-2xl font-bold text-white mt-1">
+              Surveillance en temps réel du rail (PK 42.8)
+            </h3>
+            <p class="text-xs text-stone-400 mt-1">
+              Simulation dynamique des jauges IoT multi-paramètres déployées sur la traverse N° 1 842.
+            </p>
+          </div>
+
+          <!-- Sélecteur de tronçon -->
+          <div class="shrink-0">
+            <label for="track-select" class="block text-[11px] text-stone-400 uppercase font-mono mb-1">Tronçon de voie :</label>
+            <select id="track-select" onchange="changeTrackPreset(this.value)" class="bg-stone-800 border border-stone-700 text-stone-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="lgv">LGV Sud-Est (PK 42.8 - V320)</option>
+              <option value="bordeaux">Ligne Classique Paris-Bordeaux (PK 114.2)</option>
+              <option value="transilien">Transilien Banlieue (Zone RATP/SNCF)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Statut d'alerte global -->
+        <div id="status-banner" class="my-6 p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-300">
+          <div class="flex items-center gap-3">
+            <div id="status-icon-wrap" class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="text-xs font-mono text-emerald-400 uppercase font-bold tracking-wider">État Général de la Voie</div>
+              <div id="status-title" class="text-sm font-semibold text-white">Nominal · Aucun risque géométrique détecté</div>
+            </div>
+          </div>
+          <div id="status-action" class="text-xs font-mono text-stone-300 bg-stone-900/60 px-3 py-1.5 rounded border border-stone-700">
+            Vitesse nominale autorisée : 320 km/h
+          </div>
+        </div>
+
+        <!-- 3 Métriques dynamiques clés -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+          
+          <!-- Jauge 1 : Température du rail -->
+          <div class="p-4 bg-stone-800/80 rounded-xl border border-stone-700 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-stone-400 mb-2">
+              <span class="flex items-center gap-1.5 font-medium">
+                <i data-lucide="thermometer" class="w-4 h-4 text-amber-400"></i>
+                <span>Température du Rail</span>
+              </span>
+              <span id="temp-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-900/50 text-emerald-300 border border-emerald-700/40">
+                STABLE
+              </span>
+            </div>
+
+            <div class="my-2">
+              <div class="flex items-baseline gap-1">
+                <span id="metric-temp" class="text-3xl sm:text-4xl font-mono font-extrabold text-white tabular-nums">34.8</span>
+                <span class="text-stone-400 text-lg font-mono">°C</span>
+              </div>
+              <div class="text-[11px] text-stone-400 font-mono mt-1">Air ambiant : <span id="metric-air-temp">24.2</span> °C</div>
+            </div>
+
+            <!-- Barre de progression seuil -->
+            <div class="mt-3">
+              <div class="w-full bg-stone-700 h-2 rounded-full overflow-hidden">
+                <div id="temp-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 48%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-500 font-mono mt-1">
+                <span>0°C</span>
+                <span>Seuil critique 55°C</span>
+                <span>70°C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jauge 2 : Vibrations dynamiques & passage train -->
+          <div class="p-4 bg-stone-800/80 rounded-xl border border-stone-700 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-stone-400 mb-2">
+              <span class="flex items-center gap-1.5 font-medium">
+                <i data-lucide="activity" class="w-4 h-4 text-sky-400"></i>
+                <span>Vibrations Dynamiques</span>
+              </span>
+              <span id="vib-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-700 text-stone-300">
+                BRUIT DE FOND
+              </span>
+            </div>
+
+            <div class="my-2">
+              <div class="flex items-baseline gap-1">
+                <span id="metric-vib" class="text-3xl sm:text-4xl font-mono font-extrabold text-white tabular-nums">0.38</span>
+                <span class="text-stone-400 text-lg font-mono">g</span>
+              </div>
+              <div class="text-[11px] text-stone-400 font-mono mt-1">Accéléromètre triaxial Z : <span id="metric-freq">18</span> Hz</div>
+            </div>
+
+            <!-- Mini onde de vibration visuelle (SVG) -->
+            <div class="mt-3">
+              <svg id="vibration-wave" class="w-full h-6 text-sky-400/80 transition-all duration-300" viewBox="0 0 200 30" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M0,15 Q25,12 50,15 T100,15 T150,15 T200,15" />
+              </svg>
+              <div class="flex justify-between text-[10px] text-stone-500 font-mono mt-1">
+                <span>Voie au repos</span>
+                <span>Pic TGV: > 4.5g</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jauge 3 : Contrainte axiale & usure -->
+          <div class="p-4 bg-stone-800/80 rounded-xl border border-stone-700 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-stone-400 mb-2">
+              <span class="flex items-center gap-1.5 font-medium">
+                <i data-lucide="gauge" class="w-4 h-4 text-purple-400"></i>
+                <span>Contrainte & Usure</span>
+              </span>
+              <span id="stress-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950/60 text-purple-300 border border-purple-700/40">
+                OPTIMAL
+              </span>
+            </div>
+
+            <div class="my-2">
+              <div class="flex items-baseline gap-1">
+                <span id="metric-stress" class="text-3xl sm:text-4xl font-mono font-extrabold text-white tabular-nums">42</span>
+                <span class="text-stone-400 text-lg font-mono">MPa</span>
+              </div>
+              <div class="text-[11px] text-stone-400 font-mono mt-1">Profil usure tête : <span id="metric-wear">0.14</span> mm / 12 mm max</div>
+            </div>
+
+            <!-- Barre usure -->
+            <div class="mt-3">
+              <div class="w-full bg-stone-700 h-2 rounded-full overflow-hidden">
+                <div id="stress-bar" class="bg-purple-500 h-full rounded-full transition-all duration-500" style="width: 32%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-500 font-mono mt-1">
+                <span>0 MPa (Neutre)</span>
+                <span>Seuil Flambement : 120 MPa</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Panneau de commandes interactives du simulateur -->
+        <div class="bg-stone-950 p-4 rounded-xl border border-stone-800">
+          <div class="text-xs font-mono uppercase text-stone-400 mb-3 flex items-center justify-between">
+            <span class="font-semibold text-stone-300">Tester un scénario en temps réel :</span>
+            <span class="text-[11px] text-stone-500">Mise à jour immédiate des algorithmes</span>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="triggerScenario('normal')" class="scenario-btn px-3.5 py-2 text-xs font-medium rounded-lg transition-all bg-stone-800 hover:bg-stone-700 text-white border border-stone-700 flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-stone-400"></i>
+              <span>Conditions Normales (Reset)</span>
+            </button>
+
+            <button onclick="triggerScenario('tgv')" class="scenario-btn px-3.5 py-2 text-xs font-medium rounded-lg transition-all bg-sky-950 hover:bg-sky-900 text-sky-200 border border-sky-700/60 flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Simuler passage TGV (320 km/h)</span>
+            </button>
+
+            <button onclick="triggerScenario('heatwave')" class="scenario-btn px-3.5 py-2 text-xs font-medium rounded-lg transition-all bg-amber-950 hover:bg-amber-900 text-amber-200 border border-amber-700/60 flex items-center gap-1.5">
+              <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Simuler Canicule (+26°C d'acier)</span>
+            </button>
+
+            <button onclick="triggerScenario('defect')" class="scenario-btn px-3.5 py-2 text-xs font-medium rounded-lg transition-all bg-red-950 hover:bg-red-900 text-red-200 border border-red-700/60 flex items-center gap-1.5">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-400"></i>
+              <span>Simuler Anomalie de Ballast</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PARTIE 3 -->
+      <section id="partie-ia" class="pt-6">
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight mb-4 flex items-baseline gap-3">
+          <span class="text-rail-red font-sans font-bold text-lg sm:text-xl">03.</span>
+          <span>Du flux de données au jumeau numérique : quand l'IA anticipe la fissure</span>
+        </h2>
+
+        <p>
+          Recueillir des millions de points de mesure bruts ne suffit pas : sans traitement intelligent, l’océan de données noierait les ingénieurs d’astreinte. C’est là qu’intervient la deuxième composante de la révolution ferroviaire : le jumeau numérique de l'infrastructure, baptisé « Voie Augmentée ».
+        </p>
+
+        <p>
+          Hébergée sur des serveurs sécurisés en France, cette réplique virtuelle dynamique ingère continuellement les données des capteurs fixes au sol, croisées avec la télémétrie embarquée des rames commerciales et les prévisions météorologiques hyperlocales de Météo-France à 72 heures.
+        </p>
+
+        <p>
+          Des modèles d'apprentissage automatique entraînés sur vingt années d'historique de défaillances traquent les micro-dérives invisibles à l'œil humain : un décalage angulaire de 0,3&nbsp;degré d’une traverse sous forte charge, une modification imperceptible du spectre de résonance lors du franchissement d'un cœur d'aiguillage, ou un léger tassement du ballast après de fortes pluies.
+        </p>
+
+        <p>
+          <em>« Nous passons d’une logique de pompier à une logique de médecin préventif »</em>, résume Matthieu Chabanon, directeur général délégué aux technologies chez SNCF Réseau. <em>« L’algorithme calcule un indice de vieillissement résiduel. Quand une faiblesse géométrique est modélisée, une alerte est transmise directement aux tablettes des agents de maintenance avec le point kilométrique exact à dix centimètres près, le type de pièce de rechange nécessaire et la fenêtre de tir nocturne la plus propice pour intervenir sans neutraliser le trafic de voyageurs. »</em>
+        </p>
+
+        <p>
+          Le gain économique et écologique est tangible : en allongeant la durée de vie des rails de 12 à 15&nbsp;% grâce à des meulages d'entretien ultra-ciblés, la SNCF économise des dizaines de milliers de tonnes d'acier neuf chaque année tout en divisant par trois les interruptions de trafic non programmées.
+        </p>
+      </section>
+
+      <!-- CONCLUSION ÉDITORIALE -->
+      <div class="pt-6 border-t border-stone-200">
+        <h3 class="font-serif text-xl font-bold text-ink-900 mb-3">Vers le rail autonome de 2030</h3>
+        <p>
+          L'ambition ne s'arrête pas aux voies ferrées. Les caténaires qui délivrent le courant 25&nbsp;000 volts font l'objet d'expérimentations similaires avec des caméras thermiques automatisées et des capteurs de tension mécanique sans fil. À l’horizon 2030, la combinaison du système de signalisation européen ERTMS niveau 3 par satellite et de l’infrastructure intelligente permettra de réduire l'espacement entre deux TGV à seulement 2 minutes et 30 secondes, contre 4 minutes aujourd'hui, augmentant de 25&nbsp;% la capacité des lignes sans avoir à poser le moindre kilomètre de voie supplémentaire. Dans la bataille pour la décarbonation des transports, le rail a trouvé ses meilleurs alliés dans l’infiniment petit.
+        </p>
+      </div>
+
+    </article>
+
+    <!-- BIO DE L'AUTEUR & SOURCE DE L'ENQUÊTE -->
+    <div class="mt-12 p-6 bg-stone-100 rounded-xl border border-stone-200 text-xs text-stone-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <div class="font-bold text-stone-900 text-sm">Méthodologie de l'enquête</div>
+        <p class="mt-1 max-w-xl">
+          Reportage réalisé en immersion sur la LGV Sud-Est et au Technicentre National de Saint-Pierre-des-Corps. Données chiffrées issues des rapports annuels de sécurité de SNCF Réseau et de l'Établissement Public de Sécurité Ferroviaire (EPSF).
+        </p>
+      </div>
+      <div class="shrink-0 text-stone-400">
+        Réf. ARCHIVE : EF-2026-10-INV
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION QR CODE & LECTURE SUR SMARTPHONE (DEMANDE EXPLICITE) -->
+    <!-- ============================================================ -->
+    <section id="partage-mobile" class="my-16 p-6 sm:p-8 bg-white rounded-2xl border border-stone-200 shadow-md">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        
+        <!-- Colonne texte & explication -->
+        <div class="flex-1 text-center md:text-left">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-rail-red border border-red-200 mb-3">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+            <span>Mobilité & Confort de lecture</span>
+          </div>
+          
+          <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight mb-2">
+            Poursuivez votre lecture sur smartphone
+          </h3>
+          
+          <p class="text-sm text-stone-600 leading-relaxed mb-6 max-w-lg">
+            Scannez ce QR Code avec l’appareil photo de votre smartphone ou de votre tablette pour emporter cet article avec vous, dans le train ou hors connexion. Vous pouvez également copier le lien direct en un clic.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+            <!-- Bouton Copier le lien avec feedback visuel -->
+            <button id="btn-copy-link" onclick="copyArticleUrl()" class="px-5 py-2.5 bg-rail-red hover:bg-rail-darkred text-white text-xs font-semibold rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-2">
+              <i data-lucide="link" class="w-4 h-4"></i>
+              <span id="btn-copy-label">Copier le lien de l'article</span>
+            </button>
+
+            <!-- Bouton Partage Natif Mobile -->
+            <button onclick="nativeShare()" class="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-lg transition-colors flex items-center gap-2">
+              <i data-lucide="share-2" class="w-4 h-4 text-stone-600"></i>
+              <span>Partager</span>
+            </button>
+          </div>
+
+          <div class="text-[11px] text-stone-400 mt-3 font-mono">
+            URL cible : <span id="target-url-display" class="text-stone-600 truncate inline-block max-w-[280px] sm:max-w-xs align-bottom"></span>
+          </div>
+        </div>
+
+        <!-- Colonne QR Code dynamique -->
+        <div class="shrink-0 flex flex-col items-center p-5 bg-paper rounded-xl border border-stone-200 shadow-inner">
+          <div class="w-44 h-44 bg-white p-2 rounded-lg border border-stone-200 shadow-sm flex items-center justify-center relative">
+            <img 
+              id="qr-code-img"
+              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://ais-dev-x2wwrakvueiz3dh3tqtkyo-12516003719.europe-west1.run.app"
+              alt="QR Code pour lire l'article sur smartphone"
+              class="w-full h-full object-contain"
+              loading="lazy"
+            />
+          </div>
+          <span class="text-[11px] font-mono text-stone-500 mt-2.5 uppercase tracking-wider flex items-center gap-1">
+            <i data-lucide="scan-line" class="w-3.5 h-3.5 text-rail-red"></i>
+            <span>Scanner pour ouvrir</span>
+          </span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION ARTICLES CONNEXES / RECOMMANDATIONS JOURNALISTIQUES -->
+    <section class="no-print pt-8 border-t border-stone-200">
+      <div class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-6">
+        Dans le même dossier : « Le Rail du Futur »
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <a href="#" class="group block p-4 rounded-xl bg-white border border-stone-200 hover:border-stone-400 transition-all shadow-sm">
+          <div class="text-[11px] font-semibold text-rail-blue uppercase tracking-wider mb-1">Technologie</div>
+          <h4 class="font-serif font-bold text-stone-900 group-hover:text-rail-red transition-colors text-base leading-snug">
+            ERTMS Niveau 3 : comment les satellites vont remplacer les feux de signalisation
+          </h4>
+          <p class="text-xs text-stone-500 mt-2 line-clamp-2">Le déploiement du contrôle continu de vitesse par constellation Galileo entre dans sa phase d'essai.</p>
+        </a>
+
+        <a href="#" class="group block p-4 rounded-xl bg-white border border-stone-200 hover:border-stone-400 transition-all shadow-sm">
+          <div class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider mb-1">Transition Énergétique</div>
+          <h4 class="font-serif font-bold text-stone-900 group-hover:text-rail-red transition-colors text-base leading-snug">
+            Batteries et hydrogène : quel avenir pour les lignes non électrifiées de province ?
+          </h4>
+          <p class="text-xs text-stone-500 mt-2 line-clamp-2">Alors que le diesel doit disparaître d'ici 2035, les premières rames bimodes font leurs preuves en Occitanie.</p>
+        </a>
+
+        <a href="#" class="group block p-4 rounded-xl bg-white border border-stone-200 hover:border-stone-400 transition-all shadow-sm">
+          <div class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider mb-1">Économie & Réseau</div>
+          <h4 class="font-serif font-bold text-stone-900 group-hover:text-rail-red transition-colors text-base leading-snug">
+            Fret ferroviaire : 100 milliards d’euros pour doubler la part du rail en Europe
+          </h4>
+          <p class="text-xs text-stone-500 mt-2 line-clamp-2">Bruxelles et Paris accélèrent sur l'attelage automatique numérique pour concurrencer le camion.</p>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- PIED DE PAGE (FOOTER JOURNALISTIQUE COMPLET) -->
+  <!-- ============================================================ -->
+  <footer class="no-print bg-ink-900 text-stone-400 text-xs border-t border-stone-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-stone-800">
+        
+        <!-- Marque & Description -->
+        <div class="md:col-span-1">
+          <span class="font-serif text-2xl font-bold text-white uppercase tracking-tight block">
+            L'Écho Ferroviaire
+          </span>
+          <p class="mt-2 text-stone-400 text-xs leading-relaxed">
+            Revue de référence des professionnels du rail, des ingénieurs de transport et des décideurs publics de la mobilité décarbonée.
+          </p>
+          <div class="mt-4 flex items-center gap-3 text-stone-400">
+            <a href="#" class="p-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg transition-colors" title="Twitter / X"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+            <a href="#" class="p-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg transition-colors" title="LinkedIn"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+            <a href="#" class="p-2 bg-stone-800 hover:bg-stone-700 text-white rounded-lg transition-colors" title="Flux RSS"><i data-lucide="rss" class="w-4 h-4"></i></a>
+          </div>
+        </div>
+
+        <!-- Rubriques éditoriales -->
+        <div>
+          <div class="text-white font-semibold uppercase tracking-wider text-xs mb-3">Rubriques</div>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white transition-colors">Infrastructures & Voies</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Matériel Roulant & TGV</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Intelligence Artificielle & IoT</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Politiques de Transport</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Fret & Logistique Verte</a></li>
+          </ul>
+        </div>
+
+        <!-- Services & Abonnements -->
+        <div>
+          <div class="text-white font-semibold uppercase tracking-wider text-xs mb-3">Services Lecteurs</div>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white transition-colors">Abonnement Professionnel</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Archives des Numéros (1984-2026)</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Offres Entreprises & Écoles</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Applications iOS & Android</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contactez la rédaction</a></li>
+          </ul>
+        </div>
+
+        <!-- Inscription Newsletter -->
+        <div>
+          <div class="text-white font-semibold uppercase tracking-wider text-xs mb-3">La Lettre du Rail</div>
+          <p class="text-stone-400 text-xs mb-3">
+            Recevez chaque jeudi matin notre veille technologique et notre analyse confidentielle des réseaux ferroviaires.
+          </p>
+          <form onsubmit="handleNewsletterSubmit(event)" class="space-y-2">
+            <input 
+              type="email" 
+              id="newsletter-email"
+              placeholder="votre.email@domaine.fr" 
+              required
+              class="w-full bg-stone-800 border border-stone-700 text-white text-xs px-3 py-2 rounded-lg focus:outline-none focus:border-red-500 placeholder-stone-500"
+            />
+            <button type="submit" class="w-full bg-rail-red hover:bg-rail-darkred text-white font-semibold py-2 px-3 rounded-lg transition-colors text-xs">
+              S'inscrire gratuitement
+            </button>
+            <div id="newsletter-feedback" class="text-[11px] text-emerald-400 font-medium hidden">
+              ✓ Inscription confirmée. Merci !
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Copyright et Mentions légales -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-stone-500 gap-4">
+        <div>
+          © 2026 L'Écho Ferroviaire — Groupe Éditions Mobilités d'Avenir SAS. Tous droits réservés.
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <a href="#" class="hover:underline">Mentions légales</a>
+          <a href="#" class="hover:underline">Politique de confidentialité</a>
+          <a href="#" class="hover:underline">Gestion des cookies</a>
+          <a href="#" class="hover:underline">Crédits photographiques : SNCF Réseau / L'Écho Ferroviaire</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT : INTERACTIONS, TÉLÉMÉTRIE DYNAMIQUE & QR CODE -->
+  <!-- ============================================================ -->
+  <script>
+    // Initialisation des icônes Lucide
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+      initCurrentDate();
+      initQrCodeAndUrl();
+      initReadingProgress();
+      startContinuousSensorTick();
+    });
+
+    // 1. Horodatage dynamique français
+    function initCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = now.toLocaleDateString('fr-FR', options);
+      const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+      const dateEl = document.getElementById('current-date-badge');
+      if (dateEl) {
+        dateEl.textContent = capitalizedDate;
+      }
+    }
+
+    // 2. Initialisation QR Code et URL dynamique
+    function initQrCodeAndUrl() {
+      const currentUrl = window.location.href || 'https://www.lecho-ferroviaire.fr/articles/sncf-capteurs-iot-maintenance-predictive';
+      const urlDisplay = document.getElementById('target-url-display');
+      if (urlDisplay) {
+        urlDisplay.textContent = currentUrl;
+      }
+
+      const qrImg = document.getElementById('qr-code-img');
+      if (qrImg) {
+        const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}`;
+        qrImg.src = qrApi;
+      }
+    }
+
+    // 3. Barre de progression de lecture au scroll
+    function initReadingProgress() {
+      window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progressBar = document.getElementById('reading-progress-bar');
+        if (progressBar) {
+          progressBar.style.width = scrolled + '%';
+        }
+      });
+    }
+
+    // 4. Copie du lien avec feedback visuel & Toast
+    function copyArticleUrl() {
+      const currentUrl = window.location.href || 'https://www.lecho-ferroviaire.fr/articles/sncf-capteurs-iot';
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        showToast('✓ Lien copié dans le presse-papier !');
+        
+        // Feedback sur le bouton
+        const btnLabel = document.getElementById('btn-copy-label');
+        if (btnLabel) {
+          const original = btnLabel.textContent;
+          btnLabel.textContent = '✓ Copié !';
+          setTimeout(() => {
+            btnLabel.textContent = original;
+          }, 2500);
+        }
+      }).catch(err => {
+        showToast('Lien prêt à être partagé');
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      if (toast && toastText) {
+        toastText.textContent = message;
+        toast.classList.remove('translate-y-16', 'opacity-0', 'pointer-events-none');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        setTimeout(() => {
+          toast.classList.add('translate-y-16', 'opacity-0', 'pointer-events-none');
+          toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3200);
+      }
+    }
+
+    // Partage Web Share API ou fallback
+    function nativeShare() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'SNCF : des capteurs intelligents sur les rails pour révolutionner la maintenance prédictive',
+          text: 'Enquête exclusive de L\'Écho Ferroviaire sur les balises IoT et l\'IA déployées sur le réseau ferré français.',
+          url: window.location.href,
+        }).catch(() => {});
+      } else {
+        copyArticleUrl();
+      }
+    }
+
+    function shareArticle(platform) {
+      const url = encodeURIComponent(window.location.href);
+      const title = encodeURIComponent("SNCF : des capteurs intelligents sur les rails pour révolutionner la maintenance prédictive");
+      let shareUrl = '';
+
+      if (platform === 'twitter') {
+        shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}&via=EchoFerroviaire`;
+      } else if (platform === 'linkedin') {
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+      } else if (platform === 'whatsapp') {
+        shareUrl = `https://api.whatsapp.com/send?text=${title}%20${url}`;
+      }
+
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+      }
+    }
+
+    // Gestion de l'audio article fictif
+    const btnAudio = document.getElementById('btn-audio-read');
+    if (btnAudio) {
+      let isPlaying = false;
+      btnAudio.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          btnAudio.innerHTML = '<i data-lucide="square" class="w-3.5 h-3.5 text-rail-red"></i> <span>Arrêter la lecture</span>';
+          showToast('Lecture audio de l\'article en cours...');
+        } else {
+          btnAudio.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5 text-rail-red"></i> <span>Écouter (6 min)</span>';
+          showToast('Lecture audio interrompue');
+        }
+        if (window.lucide) window.lucide.createIcons();
+      });
+    }
+
+    // Ajustement de la taille de texte (accessibilité)
+    const btnFont = document.getElementById('btn-font-toggle');
+    if (btnFont) {
+      let fontSizeLarge = false;
+      btnFont.addEventListener('click', () => {
+        fontSizeLarge = !fontSizeLarge;
+        const article = document.querySelector('.article-content');
+        if (article) {
+          if (fontSizeLarge) {
+            article.classList.remove('text-[17px]');
+            article.classList.add('text-[20px]', 'leading-[2.0]');
+            showToast('Taille de police agrandie');
+          } else {
+            article.classList.remove('text-[20px]', 'leading-[2.0]');
+            article.classList.add('text-[17px]', 'leading-[1.8]');
+            showToast('Taille de police standard');
+          }
+        }
+      });
+    }
+
+    // Impression
+    const btnPrint = document.getElementById('btn-print');
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    // Newsletter simulation
+    function handleNewsletterSubmit(e) {
+      e.preventDefault();
+      const feedback = document.getElementById('newsletter-feedback');
+      const input = document.getElementById('newsletter-email');
+      if (feedback && input) {
+        feedback.classList.remove('hidden');
+        input.value = '';
+        setTimeout(() => {
+          feedback.classList.add('hidden');
+        }, 5000);
+      }
+    }
+
+    // ============================================================
+    // LOGIQUE DU DASHBOARD CAPTEUR EN DIRECT (TÉLÉMÉTRIE SIMULÉE)
+    // ============================================================
+    let currentPreset = 'lgv';
+    let currentScenario = 'normal';
+
+    const presets = {
+      lgv: {
+        title: 'LGV Sud-Est (PK 42.8 - Vitesse max 320 km/h)',
+        baseTemp: 34.8,
+        airTemp: 24.2,
+        baseVib: 0.38,
+        baseStress: 42,
+        wear: 0.14,
+        speedMax: '320 km/h'
+      },
+      bordeaux: {
+        title: 'Ligne Classique Paris-Bordeaux (PK 114.2 - Fret / Voyageurs)',
+        baseTemp: 29.5,
+        airTemp: 22.0,
+        baseVib: 0.52,
+        baseStress: 54,
+        wear: 0.48,
+        speedMax: '160 km/h'
+      },
+      transilien: {
+        title: 'Transilien Banlieue (Zone dense 14 trains / heure)',
+        baseTemp: 26.2,
+        airTemp: 20.5,
+        baseVib: 0.44,
+        baseStress: 38,
+        wear: 0.82,
+        speedMax: '120 km/h'
+      }
+    };
+
+    function changeTrackPreset(presetKey) {
+      currentPreset = presetKey;
+      triggerScenario('normal');
+      showToast(`Tronçon sélectionné : ${presets[presetKey].title}`);
+    }
+
+    function triggerScenario(scenario) {
+      currentScenario = scenario;
+      const config = presets[currentPreset];
+
+      const elTemp = document.getElementById('metric-temp');
+      const elAirTemp = document.getElementById('metric-air-temp');
+      const elVib = document.getElementById('metric-vib');
+      const elFreq = document.getElementById('metric-freq');
+      const elStress = document.getElementById('metric-stress');
+      const elWear = document.getElementById('metric-wear');
+      const tempBar = document.getElementById('temp-bar');
+      const stressBar = document.getElementById('stress-bar');
+      const statusBanner = document.getElementById('status-banner');
+      const statusTitle = document.getElementById('status-title');
+      const statusAction = document.getElementById('status-action');
+      const statusIconWrap = document.getElementById('status-icon-wrap');
+      const tempBadge = document.getElementById('temp-badge');
+      const vibBadge = document.getElementById('vib-badge');
+      const stressBadge = document.getElementById('stress-badge');
+      const waveSvg = document.getElementById('vibration-wave');
+
+      if (scenario === 'normal') {
+        // Scénario Nominal
+        elTemp.textContent = config.baseTemp.toFixed(1);
+        elAirTemp.textContent = config.airTemp.toFixed(1);
+        elVib.textContent = config.baseVib.toFixed(2);
+        elFreq.textContent = '18';
+        elStress.textContent = config.baseStress;
+        elWear.textContent = config.wear.toFixed(2);
+
+        tempBar.style.width = '48%';
+        tempBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-500';
+
+        stressBar.style.width = '35%';
+        stressBar.className = 'bg-purple-500 h-full rounded-full transition-all duration-500';
+
+        statusBanner.className = 'my-6 p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-300';
+        statusIconWrap.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+        statusIconWrap.innerHTML = '<i data-lucide="shield-check" class="w-5 h-5"></i>';
+        statusTitle.textContent = 'Nominal · Paramètres géométriques et thermiques conformes';
+        statusAction.textContent = `Vitesse autorisée : ${config.speedMax}`;
+
+        tempBadge.textContent = 'STABLE';
+        tempBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-900/50 text-emerald-300 border border-emerald-700/40';
+
+        vibBadge.textContent = 'BRUIT DE FOND';
+        vibBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-700 text-stone-300';
+
+        stressBadge.textContent = 'OPTIMAL';
+        stressBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950/60 text-purple-300 border border-purple-700/40';
+
+        waveSvg.innerHTML = '<path d="M0,15 Q25,12 50,15 T100,15 T150,15 T200,15" />';
+        waveSvg.className = 'w-full h-6 text-sky-400/80 transition-all duration-300';
+
+      } else if (scenario === 'tgv') {
+        // Scénario Passage TGV
+        elVib.textContent = '4.92';
+        elFreq.textContent = '240';
+        elStress.textContent = (config.baseStress + 18).toString();
+
+        vibBadge.textContent = 'PASSAGE TGV EN DIRECT';
+        vibBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-sky-900 text-sky-200 border border-sky-400 animate-pulse';
+
+        // Onde de choc dans le SVG
+        waveSvg.innerHTML = '<path d="M0,15 Q15,2 30,28 T60,2 T90,28 T120,5 T150,25 T180,8 T200,15" stroke-width="2.5" />';
+        waveSvg.className = 'w-full h-6 text-sky-300 transition-all duration-150 animate-sensor-pulse';
+
+        statusTitle.textContent = 'Convoi Grande Vitesse en cours de franchissement (318 km/h relevé)';
+        statusAction.textContent = 'Signature dynamique normale enregistrée au jumeau numérique';
+
+        showToast('⚡ Détection passage TGV : accélération dynamique 4.92 g');
+
+        // Retour progressif au calme après 4 secondes
+        setTimeout(() => {
+          if (currentScenario === 'tgv') {
+            triggerScenario('normal');
+          }
+        }, 4000);
+
+      } else if (scenario === 'heatwave') {
+        // Scénario Canicule
+        const railHeat = config.baseTemp + 26.5; // Ex: 61.3°C
+        elTemp.textContent = railHeat.toFixed(1);
+        elAirTemp.textContent = '38.4';
+        elStress.textContent = '108'; // Forte compression
+
+        tempBar.style.width = '88%';
+        tempBar.className = 'bg-red-500 h-full rounded-full transition-all duration-500';
+
+        stressBar.style.width = '88%';
+        stressBar.className = 'bg-red-500 h-full rounded-full transition-all duration-500';
+
+        tempBadge.textContent = 'ALERTE CANICULE';
+        tempBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-900 text-red-100 border border-red-500 animate-pulse';
+
+        stressBadge.textContent = 'DILATATION FORTE';
+        stressBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-900 text-amber-200 border border-amber-600';
+
+        statusBanner.className = 'my-6 p-4 rounded-xl bg-red-950/80 border border-red-600 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-300';
+        statusIconWrap.className = 'w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center shrink-0';
+        statusIconWrap.innerHTML = '<i data-lucide="alert-octagon" class="w-5 h-5"></i>';
+        statusTitle.textContent = 'Vigilance Dilatation Critique : Rail > 60°C. Risque de flambement.';
+        statusAction.textContent = 'Action : Arrosage préventif déclenché / Vitesse réduite à 220 km/h';
+
+        showToast('⚠️ Seuil thermique dépassé : Alerte transmise au poste d\'aiguillage');
+
+      } else if (scenario === 'defect') {
+        // Scénario Tassement / Anomalie de Ballast
+        elVib.textContent = '1.85';
+        elFreq.textContent = '48';
+        elWear.textContent = (config.wear + 0.35).toFixed(2);
+        elStress.textContent = '82';
+
+        stressBar.style.width = '70%';
+        stressBar.className = 'bg-amber-500 h-full rounded-full transition-all duration-500';
+
+        statusBanner.className = 'my-6 p-4 rounded-xl bg-amber-950/80 border border-amber-600 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-300';
+        statusIconWrap.className = 'w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0';
+        statusIconWrap.innerHTML = '<i data-lucide="wrench" class="w-5 h-5"></i>';
+        statusTitle.textContent = 'Anomalie de portance ballast détectée (Jeu vertical anormal +1.8 mm)';
+        statusAction.textContent = 'Ordre d\'intervention bourrage programmé sous 48h';
+
+        vibBadge.textContent = 'HARMONIQUE ANORMALE';
+        vibBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-900 text-amber-200 border border-amber-500';
+
+        showToast('🔧 Défaut géométrique modélisé dans le jumeau numérique');
+      }
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Micro-fluctuations réalistes en continu pour simuler un vrai flux IoT
+    function startContinuousSensorTick() {
+      setInterval(() => {
+        if (currentScenario === 'normal') {
+          const elTemp = document.getElementById('metric-temp');
+          const elVib = document.getElementById('metric-vib');
+          if (elTemp && elVib) {
+            const config = presets[currentPreset];
+            // Petite variation de +/- 0.2°C
+            const randTempDelta = (Math.random() * 0.4 - 0.2);
+            elTemp.textContent = (config.baseTemp + randTempDelta).toFixed(1);
+
+            // Petite variation de vibration
+            const randVibDelta = (Math.random() * 0.06 - 0.03);
+            elVib.textContent = Math.max(0.1, config.baseVib + randVibDelta).toFixed(2);
+          }
+        }
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
